@@ -13,11 +13,11 @@ const FileViewPage = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await axios.get(`http://localhost:3000/file-info/${id}`);
-        setFile(response.data);
+        const response = await axios.get(`http://localhost:3000/api/file-info/${id}`);
+        setFile(response.data.data);
       } catch (err) {
         console.error('Error fetching file info:', err);
-        setError(err.response?.data || 'Failed to load file information');
+        setError(err.response?.data?.message || 'Failed to load file information');
       } finally {
         setLoading(false);
       }
@@ -28,7 +28,7 @@ const FileViewPage = () => {
 
   const handleDownload = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/file/${id}`, {
+      const response = await axios.get(`http://localhost:3000/api/file/${id}`, {
         responseType: 'blob'
       });
       
@@ -86,8 +86,8 @@ const FileViewPage = () => {
     </div>
   );
 
-  const fileUrl = `http://localhost:3000/file/${id}`;
-  const previewUrl = `http://localhost:3000/${file.filePath}`;
+  const fileUrl = `https://file-sharing-nb09.onrender.com/api/file/${id}`;
+  const previewUrl = `https://file-sharing-nb09.onrender.com/${file.filePath}`;
   const ext = file.fileType.toLowerCase();
 
   const getFileIcon = () => {

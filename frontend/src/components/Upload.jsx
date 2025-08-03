@@ -50,10 +50,10 @@ function Upload() {
     formData.append("file", file);
 
     try {
-      const res = await axios.post("http://localhost:3000/upload", formData);
+      const res = await axios.post("https://file-sharing-nb09.onrender.com/api/upload", formData);
       setLinks({
-        fileUrl: `http://localhost:3000/${res.data.filePath}`,
-        fileInfoUrl: `/file/${res.data._id}`
+        fileUrl: res.data.data.fileUrl,
+        fileInfoUrl: res.data.data.fileInfoUrl
       });
       setFile(null);
       if (fileInputRef.current) {

@@ -1,21 +1,49 @@
 {
-  "name": "backend",
+  "name": "fileshare-backend",
   "version": "1.0.0",
-  "description": "",
-  "license": "ISC",
-  "author": "",
-  "type": "commonjs",
+  "description": "Secure file sharing backend API",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "build": "echo 'No build step required for Node.js'",
+    "test": "echo 'No tests specified'",
+    "lint": "echo 'No linter configured'"
   },
+  "keywords": [
+    "file-sharing",
+    "api",
+    "express",
+    "mongodb",
+    "multer"
+  ],
+  "author": "FileShare Team",
+  "license": "MIT",
   "dependencies": {
+    "compression": "^1.7.4",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
     "mongoose": "^8.17.0",
-    "multer": "^2.0.2",
+    "morgan": "^1.10.0",
+    "multer": "^2.0.2"
+  },
+  "devDependencies": {
     "nodemon": "^3.1.10"
-  }
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/fileshare.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/fileshare/issues"
+  },
+  "homepage": "https://github.com/yourusername/fileshare#readme"
 }

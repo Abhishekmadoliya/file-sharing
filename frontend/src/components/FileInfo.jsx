@@ -14,8 +14,8 @@ function FileInfo() {
       try {
         setLoading(true);
         setError("");
-        const res = await axios.get(`http://localhost:3000/file-info/${id}`);
-        setFile(res.data);
+        const res = await axios.get(`https://file-sharing-nb09.onrender.com/api/file-info/${id}`);
+        setFile(res.data.data);
       } catch (err) {
         console.error('Error fetching file info:', err);
         setError("File not found or expired");
@@ -30,7 +30,7 @@ function FileInfo() {
   const markOffline = async () => {
     try {
       setUpdating(true);
-      await axios.post(`http://localhost:3000/mark-offline/${id}`);
+      await axios.post(`https://file-sharing-nb09.onrender.com/api/mark-offline/${id}`);
       // Refresh the page to show updated status
       window.location.reload();
     } catch (err) {
@@ -176,7 +176,7 @@ function FileInfo() {
           <div className="space-y-4">
             {file.isUploaderOnline ? (
               <a 
-                href={`http://localhost:3000/file/${id}`}
+                href={`https://file-sharing-nb09.onrender.com/api/file/${id}`}
                 className="w-full flex items-center justify-center px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-semibold text-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
