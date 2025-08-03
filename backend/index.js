@@ -16,6 +16,6 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.error('MongoDB connection error:', err))    
 
 
-app.get('/app', (req, res) => res.send('Hello World!'))
-app.use('/', fileRoutes)
+  app.use('/api', fileRoutes)
+// app.get('/app', (req, res) => res.send('Hello World!'))
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))

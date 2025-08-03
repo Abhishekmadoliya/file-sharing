@@ -13,7 +13,7 @@ const FileViewPage = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await axios.get(`http://localhost:3000/api/file-info/${id}`);
+        const response = await axios.get(`https://file-sharing-nb09.onrender.com/api/file-info/${id}`);
         setFile(response.data.data);
       } catch (err) {
         console.error('Error fetching file info:', err);
@@ -28,7 +28,7 @@ const FileViewPage = () => {
 
   const handleDownload = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/file/${id}`, {
+      const response = await axios.get(`https://file-sharing-nb09.onrender.com/api/file/${id}`, {
         responseType: 'blob'
       });
       

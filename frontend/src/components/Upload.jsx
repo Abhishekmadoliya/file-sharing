@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function Upload() {
@@ -8,6 +9,7 @@ function Upload() {
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -64,6 +66,16 @@ function Upload() {
       setError('Upload failed. Please try again.');
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleViewFile = () => {
+    if (links && links.fileInfoUrl) {
+      // Extract the file ID from the fileInfoUrl
+      const urlParts = links.fileInfoUrl.split('/');
+      const fileId = urlParts[urlParts.length - 1];
+      // Navigate to the file view page
+      navigate(`/file/${fileId}`);
     }
   };
 
@@ -224,14 +236,12 @@ function Upload() {
                     </svg>
                     <span className="text-sm font-medium text-gray-700">Preview Page:</span>
                   </div>
-                  <a 
-                    href={links.fileInfoUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="text-blue-600 hover:text-blue-800 font-medium text-sm underline"
+                  <button
+                    onClick={handleViewFile}
+                    className="text-blue-600 hover:text-blue-800 font-medium text-sm underline cursor-pointer"
                   >
                     View File
-                  </a>
+                  </button>
                 </div>
                 
                 <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-green-200">
