@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const multer = require('multer');
 const File = require('../models/file');
 const { cloudinary, upload } = require('../config/cloudinary');
 const router = express.Router();
@@ -29,8 +30,8 @@ router.post('/upload', upload.single('file'), async (req, res, next) => {
       originalName: req.file.originalname,
       path: req.file.path, // Keep for backward compatibility
       size: req.file.size,
-      cloudinaryUrl: req.file.path, // Cloudinary URL
-      cloudinaryPublicId: req.file.filename, // Cloudinary public ID
+      cloudinaryUrl: req.file.path, // Cloudinary URL (req.file.path contains the Cloudinary URL)
+      cloudinaryPublicId: req.file.filename, // Cloudinary public ID (req.file.filename contains the public ID)
       isUploaderOnline: true
     });
 
