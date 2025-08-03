@@ -1,58 +1,11 @@
 const express = require('express');
-const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const File = require('../models/file');
+const { cloudinary, upload } = require('../config/cloudinary');
 const router = express.Router();
 
-// File upload configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = 'uploads/';
-    // Create uploads directory if it doesn't exist
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    // Sanitize filename and create unique name
-    const sanitizedName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const uniqueName = `${Date.now()}-${Math.random().toString(36).substring(2)}-${sanitizedName}`;
-    cb(null, uniqueName);
-  }
-});
-
-// File filter for security
-const fileFilter = (req, file, cb) => {
-  // Allowed file types
-  const allowedTypes = [
-    'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
-    'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime',
-    'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/aac',
-    'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'text/plain', 'text/csv', 'application/json', 'application/xml',
-    'application/zip', 'application/x-rar-compressed'
-  ];
-
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('File type not allowed'), false);
-  }
-};
-
-// Multer configuration with limits
-const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: 100 * 1024 * 1024, // 100MB limit
-    files: 1 // Only one file per request
-  }
-});
-
-// Upload file endpoint
+// Upload file endpoint using Cloudinary
 router.post('/upload', upload.single('file'), async (req, res, next) => {
   try {
     if (!req.file) {
@@ -70,12 +23,14 @@ router.post('/upload', upload.single('file'), async (req, res, next) => {
       });
     }
 
-    // Create file record
+    // Create file record with Cloudinary data
     const file = new File({
       filename: req.file.filename,
       originalName: req.file.originalname,
-      path: req.file.path,
+      path: req.file.path, // Keep for backward compatibility
       size: req.file.size,
+      cloudinaryUrl: req.file.path, // Cloudinary URL
+      cloudinaryPublicId: req.file.filename, // Cloudinary public ID
       isUploaderOnline: true
     });
 
@@ -86,16 +41,16 @@ router.post('/upload', upload.single('file'), async (req, res, next) => {
     
     res.status(201).json({
       success: true,
-      message: 'File uploaded successfully',
+      message: 'File uploaded successfully to Cloudinary',
       data: {
         _id: file._id,
         filename: file.filename,
         originalName: file.originalName,
         size: file.size,
-        filePath: file.path,
+        cloudinaryUrl: file.cloudinaryUrl,
         fileUrl: `${baseUrl}/api/file/${file._id}`,
         fileInfoUrl: `${baseUrl}/api/file-info/${file._id}`,
-        previewUrl: `${baseUrl}/uploads/${file.filename}`,
+        previewUrl: file.cloudinaryUrl, // Use Cloudinary URL for preview
         uploadedAt: file.createdAt
       }
     });
@@ -127,14 +82,6 @@ router.get('/file-info/:id', async (req, res, next) => {
       });
     }
 
-    // Check if file exists on disk
-    if (!fs.existsSync(file.path)) {
-      return res.status(404).json({
-        error: 'File not found',
-        message: 'File has been deleted from server'
-      });
-    }
-
     const fileType = path.extname(file.originalName).toLowerCase().substring(1);
     const baseUrl = `${req.protocol}://${req.get('host')}`;
 
@@ -144,12 +91,12 @@ router.get('/file-info/:id', async (req, res, next) => {
         _id: file._id,
         name: file.originalName,
         size: file.size,
-        filePath: file.path,
+        cloudinaryUrl: file.cloudinaryUrl,
         fileType: fileType,
         isUploaderOnline: file.isUploaderOnline,
         uploadedAt: file.createdAt,
         downloadUrl: `${baseUrl}/api/file/${file._id}`,
-        previewUrl: `${baseUrl}/uploads/${file.filename}`
+        previewUrl: file.cloudinaryUrl // Use Cloudinary URL for preview
       }
     });
 
@@ -158,7 +105,7 @@ router.get('/file-info/:id', async (req, res, next) => {
   }
 });
 
-// Download file endpoint
+// Download file endpoint (redirects to Cloudinary URL)
 router.get('/file/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -180,14 +127,6 @@ router.get('/file/:id', async (req, res, next) => {
       });
     }
 
-    // Check if file exists on disk
-    if (!fs.existsSync(file.path)) {
-      return res.status(404).json({
-        error: 'File not found',
-        message: 'File has been deleted from server'
-      });
-    }
-
     // Check uploader status
     if (!file.isUploaderOnline) {
       return res.status(403).json({
@@ -196,25 +135,38 @@ router.get('/file/:id', async (req, res, next) => {
       });
     }
 
-    // Set headers for download
-    res.setHeader('Content-Disposition', `attachment; filename="${file.originalName}"`);
-    res.setHeader('Content-Type', 'application/octet-stream');
-    res.setHeader('Content-Length', file.size);
-
-    // Stream the file
-    const fileStream = fs.createReadStream(file.path);
-    fileStream.pipe(res);
-
-    // Handle stream errors
-    fileStream.on('error', (error) => {
-      console.error('File stream error:', error);
-      if (!res.headersSent) {
-        res.status(500).json({
-          error: 'File read error',
-          message: 'Unable to read file from server'
+    // Redirect to Cloudinary URL for download
+    if (file.cloudinaryUrl) {
+      res.redirect(file.cloudinaryUrl);
+    } else {
+      // Fallback to local file if Cloudinary URL doesn't exist
+      if (!fs.existsSync(file.path)) {
+        return res.status(404).json({
+          error: 'File not found',
+          message: 'File has been deleted from server'
         });
       }
-    });
+
+      // Set headers for download
+      res.setHeader('Content-Disposition', `attachment; filename="${file.originalName}"`);
+      res.setHeader('Content-Type', 'application/octet-stream');
+      res.setHeader('Content-Length', file.size);
+
+      // Stream the file
+      const fileStream = fs.createReadStream(file.path);
+      fileStream.pipe(res);
+
+      // Handle stream errors
+      fileStream.on('error', (error) => {
+        console.error('File stream error:', error);
+        if (!res.headersSent) {
+          res.status(500).json({
+            error: 'File read error',
+            message: 'Unable to read file from server'
+          });
+        }
+      });
+    }
 
   } catch (error) {
     next(error);
@@ -303,7 +255,7 @@ router.post('/mark-online/:id', async (req, res, next) => {
   }
 });
 
-// Delete file endpoint (for cleanup)
+// Delete file endpoint (deletes from both Cloudinary and MongoDB)
 router.delete('/file/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -325,7 +277,18 @@ router.delete('/file/:id', async (req, res, next) => {
       });
     }
 
-    // Delete file from disk
+    // Delete from Cloudinary if public ID exists
+    if (file.cloudinaryPublicId) {
+      try {
+        await cloudinary.uploader.destroy(file.cloudinaryPublicId);
+        console.log(`File deleted from Cloudinary: ${file.cloudinaryPublicId}`);
+      } catch (cloudinaryError) {
+        console.error('Error deleting from Cloudinary:', cloudinaryError);
+        // Continue with local deletion even if Cloudinary deletion fails
+      }
+    }
+
+    // Delete local file if it exists
     if (fs.existsSync(file.path)) {
       fs.unlinkSync(file.path);
     }
@@ -335,7 +298,7 @@ router.delete('/file/:id', async (req, res, next) => {
 
     res.json({
       success: true,
-      message: 'File deleted successfully'
+      message: 'File deleted successfully from Cloudinary and database'
     });
 
   } catch (error) {
