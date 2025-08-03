@@ -57,6 +57,12 @@ router.post('/upload', upload.single('file'), async (req, res, next) => {
     });
 
   } catch (error) {
+    console.error('❌ Upload error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     next(error);
   }
 });
