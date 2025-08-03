@@ -1,4 +1,5 @@
-view live here: https://file-sharing-cyan.vercel.app/
+View live here: https://file-sharing-cyan.vercel.app/
+note: document will not persist as of now but we will surely update application shortly, thanks
  # FileShare - Secure File Sharing Platform
 
 A modern, responsive file sharing application built with React frontend and Node.js backend, featuring real-time uploader status tracking and secure file management.
@@ -297,4 +298,5 @@ This project is licensed under the MIT License.
 ---
 
 **FileShare** - Secure, fast, and reliable file sharing for everyone.
+
 
