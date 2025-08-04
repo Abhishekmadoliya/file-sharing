@@ -156,7 +156,7 @@ const FileViewPage = () => {
     if (ext === 'pdf') {
       return (
         <div className="bg-gray-50 rounded-xl overflow-hidden shadow-lg">
-          <iframe src={previewUrl} width="100%" height="600px" title="PDF Preview" className="border-0"></iframe>
+          <iframe src={previewUrl} width="100%" height="600px" title="PDF Preview" className="border-0 p-4"></iframe>
         </div>
       );
     } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'].includes(ext)) {
