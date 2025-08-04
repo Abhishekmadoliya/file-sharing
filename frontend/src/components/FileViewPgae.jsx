@@ -114,7 +114,8 @@ const FileViewPage = () => {
   );
 
   const fileUrl = `https://file-sharing-nb09.onrender.com/api/file/${id}`;
-  const previewUrl = `https://file-sharing-nb09.onrender.com/${file.filePath}`;
+  const previewUrl = file.previewUrl || file.cloudinaryUrl;
+  // const previewUrl = `https://file-sharing-nb09.onrender.com/${file.filePath}`;
   const ext = file.fileType.toLowerCase();
 
   const getFileIcon = () => {

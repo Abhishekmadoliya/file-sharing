@@ -209,6 +209,7 @@ router.post('/mark-offline/:id', async (req, res, next) => {
     res.json({
       success: true,
       message: 'Uploader marked offline successfully',
+      fileurl: file.cloudinaryUrl,
       data: {
         _id: file._id,
         isUploaderOnline: file.isUploaderOnline,
