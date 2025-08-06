@@ -1,4 +1,4 @@
-import { Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import Navbar from './components/Navbar';
 import Demoinfo from './components/Demoinfo';
@@ -20,7 +20,7 @@ const LoadingFallback = () => (
 
 function App() {
   return (
-
+    
     <Router>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
         <Navbar />
