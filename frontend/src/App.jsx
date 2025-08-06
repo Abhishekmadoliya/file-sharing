@@ -29,6 +29,7 @@ function App() {
               <Route path="/file/:id" element={<FileViewPage />} />
               <Route path="/about" element={<About />} />
               <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="/demo/:id" element={<Demoinfo />} />
             </Routes>
           </Suspense>
         </div>
