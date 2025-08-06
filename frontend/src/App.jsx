@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import Navbar from './components/Navbar';
+import Demoinfo from './components/Demoinfo';
 
 // Lazy load components
 const Upload = lazy(() => import('./components/Upload'));
