@@ -1,6 +1,18 @@
 import { useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
+
+// API base URL
+const API_BASE_URL = 'https://file-sharing-nb09.onrender.com/api';
+
+// Create axios instance with base configuration
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 10000, // 10 seconds timeout
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
 
 const FileViewPage = () => {
   const { id } = useParams();
@@ -9,72 +21,75 @@ const FileViewPage = () => {
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    const fetchFileInfo = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await axios.get(`https://file-sharing-nb09.onrender.com/api/file-info/${id}`);
-        setFile(response.data.data);
-      } catch (err) {
-        console.error('Error fetching file info:', err);
-        if (err.code === 'ECONNREFUSED' || err.code === 'ECONNABORTED') {
-          setError('Unable to connect to server. Please check your internet connection.');
-        } else if (err.response?.status === 404) {
-          setError('File not found. It might have been deleted or moved.');
-        } else if (err.response?.status === 403) {
-          setError('Access denied. You might not have permission to view this file.');
-        } else {
-          setError(err.response?.data?.message || 'Failed to load file information');
-        }
-      } finally {
-        setLoading(false);
+  // Fetch file information
+  const fetchFileInfo = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.get(`/file-info/${id}`);
+      setFile(response.data.data);
+    } catch (err) {
+      console.error('Error fetching file info:', err);
+      if (!navigator.onLine) {
+        setError('You are offline. Please check your internet connection.');
+      } else if (err.code === 'ECONNABORTED') {
+        setError('Request timed out. Please try again.');
+      } else if (err.response?.status === 404) {
+        setError('File not found. It might have been deleted or moved.');
+      } else if (err.response?.status === 403) {
+        setError('Access denied. You might not have permission to view this file.');
+      } else {
+        setError(err.response?.data?.message || 'Failed to load file information');
       }
-    };
-
-    fetchFileInfo();
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
-  const handleDownload = async () => {
+  useEffect(() => {
+    fetchFileInfo();
+  }, [fetchFileInfo]);
+
+  // Handle file download
+  const handleDownload = useCallback(async () => {
     try {
-      const response = await axios.get(`https://file-sharing-nb09.onrender.com/api/file/${id}`);
-      
-      // Get the Cloudinary URL from the response
+      const response = await api.get(`/file/${id}`);
       const { cloudinaryUrl } = response.data.data;
       
-      // Create a link and trigger download
+      // Open file in new tab (this works better with Cloudinary URLs)
       window.open(cloudinaryUrl, '_blank');
     } catch (err) {
       console.error('Error downloading file:', err);
-      alert('Failed to download file. Please try again.');
+      if (!navigator.onLine) {
+        alert('You are offline. Please check your internet connection.');
+      } else {
+        alert('Failed to download file. Please try again.');
+      }
     }
-  };
+  }, [id]);
 
-  const handleCopyLink = async () => {
+  // Handle link copying with fallback
+  const handleCopyLink = useCallback(async () => {
+    const url = window.location.href;
     try {
-      const currentUrl = window.location.href;
-      await navigator.clipboard.writeText(currentUrl);
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = url;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
       setCopied(true);
-      
-      // Reset the copied state after 3 seconds
-      setTimeout(() => {
-        setCopied(false);
-      }, 3000);
+      setTimeout(() => setCopied(false), 3000);
     } catch (err) {
       console.error('Failed to copy link:', err);
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = window.location.href;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      setCopied(true);
-      setTimeout(() => {
-        setCopied(false);
-      }, 3000);
+      alert('Failed to copy link. Please try manually copying the URL.');
     }
-  };
+  }, []);
 
   if (loading) return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
