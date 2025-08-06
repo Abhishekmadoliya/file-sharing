@@ -1,7 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { cloudinary } from '../../../backend/config/cloudinary';
 
 const FileViewPage = () => {
   const { id } = useParams();
@@ -115,7 +114,6 @@ const FileViewPage = () => {
 
   const fileUrl = `https://file-sharing-nb09.onrender.com/api/file/${id}`;
   const previewUrl = file.previewUrl || file.cloudinaryUrl;
-  // const previewUrl = `https://file-sharing-nb09.onrender.com/${file.filePath}`;
   const ext = file.fileType.toLowerCase();
 
   const getFileIcon = () => {
@@ -156,7 +154,7 @@ const FileViewPage = () => {
     if (ext === 'pdf') {
       return (
         <div className="bg-gray-50 rounded-xl overflow-hidden shadow-lg">
-          <img src={cloudinary} width="100%" height="600px" title="PDF Preview" className="border-0 p-4"></img>
+          <iframe src={previewUrl} width="100%" height="600px" title="PDF Preview" className="border-0"></iframe>
         </div>
       );
     } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'].includes(ext)) {
