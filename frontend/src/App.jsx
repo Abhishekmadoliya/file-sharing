@@ -1,11 +1,11 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import Navbar from './components/Navbar';
 import Demoinfo from './components/Demoinfo';
 
 // Lazy load components
 const Upload = lazy(() => import('./components/Upload'));
-const FileViewPage = lazy(() => import('./components/FileViewPgae'));
+const FileViewPage = lazy(() => import('./components/FileViewPage'));
 const About = lazy(() => import('./components/About'));
 
 // Loading fallback
@@ -20,6 +20,7 @@ const LoadingFallback = () => (
 
 function App() {
   return (
+
     <Router>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
         <Navbar />
