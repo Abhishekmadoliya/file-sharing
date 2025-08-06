@@ -29,20 +29,19 @@ const FileViewPage = () => {
 
   const handleDownload = async () => {
     try {
-      const response = await axios.get(`https://file-sharing-nb09.onrender.com/api/file/${id}`, {
-        responseType: 'blob'
-      });
+      const response = await axios.get(`https://file-sharing-nb09.onrender.com/api/file/${id}`);
       
-      // Create a blob URL and trigger download
-      const blob = new Blob([response.data]);
-      const url = window.URL.createObjectURL(blob);
+      // Get the Cloudinary URL from the response
+      const { cloudinaryUrl } = response.data.data;
+      
+      // Create a link and trigger download
       const link = document.createElement('a');
-      link.href = url;
+      link.href = cloudinaryUrl;
+      link.target = '_blank';
       link.download = file.name;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Error downloading file:', err);
       alert('Failed to download file. Please try again.');

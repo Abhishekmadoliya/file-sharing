@@ -142,36 +142,21 @@ router.get('/file/:id', async (req, res, next) => {
       });
     }
 
-    // Redirect to Cloudinary URL for download
+    // Send Cloudinary URL in response
     if (file.cloudinaryUrl) {
-      res.redirect(file.cloudinaryUrl);
-    } else {
-      // Fallback to local file if Cloudinary URL doesn't exist
-      if (!fs.existsSync(file.path)) {
-        return res.status(404).json({
-          error: 'File not found',
-          message: 'File has been deleted from server'
-        });
-      }
-
-      // Set headers for download
-      res.setHeader('Content-Disposition', `attachment; filename="${file.originalName}"`);
-      res.setHeader('Content-Type', 'application/octet-stream');
-      res.setHeader('Content-Length', file.size);
-
-      // Stream the file
-      const fileStream = fs.createReadStream(file.path);
-      fileStream.pipe(res);
-
-      // Handle stream errors
-      fileStream.on('error', (error) => {
-        console.error('File stream error:', error);
-        if (!res.headersSent) {
-          res.status(500).json({
-            error: 'File read error',
-            message: 'Unable to read file from server'
-          });
+      res.json({
+        success: true,
+        data: {
+          cloudinaryUrl: file.cloudinaryUrl,
+          fileName: file.originalName,
+          fileType: path.extname(file.originalName).toLowerCase().substring(1),
+          size: file.size
         }
+      });
+    } else {
+      return res.status(404).json({
+        error: 'File URL not found',
+        message: 'File URL is not available'
       });
     }
 
