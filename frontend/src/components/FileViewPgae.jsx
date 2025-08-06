@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { cloudinary } from '../../../backend/config/cloudinary';
 
 const FileViewPage = () => {
   const { id } = useParams();
@@ -155,7 +156,7 @@ const FileViewPage = () => {
     if (ext === 'pdf') {
       return (
         <div className="bg-gray-50 rounded-xl overflow-hidden shadow-lg">
-          <iframe src={previewUrl} width="100%" height="600px" title="PDF Preview" className="border-0 p-4"></iframe>
+          <iframe src={cloudinary} width="100%" height="600px" title="PDF Preview" className="border-0 p-4"></iframe>
         </div>
       );
     } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'].includes(ext)) {
