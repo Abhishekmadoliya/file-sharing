@@ -5,7 +5,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 
 // Lazy load all components
 const Upload = lazy(() => import('./components/Upload'));
-const FileViewPage = lazy(() => import('./components/FileViewPage'));
+const FileViewPage = lazy(() => import('./components/FileViewPgae'));
 const About = lazy(() => import('./components/About'));
 const Demoinfo = lazy(() => import('./components/Demoinfo'));
 
