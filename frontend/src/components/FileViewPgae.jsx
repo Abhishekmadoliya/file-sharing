@@ -18,7 +18,15 @@ const FileViewPage = () => {
         setFile(response.data.data);
       } catch (err) {
         console.error('Error fetching file info:', err);
-        setError(err.response?.data?.message || 'Failed to load file information');
+        if (err.code === 'ECONNREFUSED' || err.code === 'ECONNABORTED') {
+          setError('Unable to connect to server. Please check your internet connection.');
+        } else if (err.response?.status === 404) {
+          setError('File not found. It might have been deleted or moved.');
+        } else if (err.response?.status === 403) {
+          setError('Access denied. You might not have permission to view this file.');
+        } else {
+          setError(err.response?.data?.message || 'Failed to load file information');
+        }
       } finally {
         setLoading(false);
       }
