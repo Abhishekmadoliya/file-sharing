@@ -27,52 +27,52 @@ const FileViewPage = () => {
     fetchFileInfo();
   }, [id]);
 
-  const handleDownload = async () => {
-    try {
-      const response = await axios.get(`https://file-sharing-nb09.onrender.com/api/file/${id}`);
+  // const handleDownload = async () => {
+  //   try {
+  //     const response = await axios.get(`https://file-sharing-nb09.onrender.com/api/file/${id}`);
       
-      // Get the Cloudinary URL from the response
-      const { cloudinaryUrl } = response.data.data;
+  //     // Get the Cloudinary URL from the response
+  //     const { cloudinaryUrl } = response.data.data;
       
-      // Create a link and trigger download
-      const link = document.createElement('a');
-      link.href = cloudinaryUrl;
-      link.target = '_blank';
-      link.download = file.name;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (err) {
-      console.error('Error downloading file:', err);
-      alert('Failed to download file. Please try again.');
-    }
-  };
+  //     // Create a link and trigger download
+  //     const link = document.createElement('a');
+  //     link.href = cloudinaryUrl;
+  //     link.target = '_blank';
+  //     link.download = file.name;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //   } catch (err) {
+  //     console.error('Error downloading file:', err);
+  //     alert('Failed to download file. Please try again.');
+  //   }
+  // };
 
-  const handleCopyLink = async () => {
-    try {
-      const currentUrl = window.location.href;
-      await navigator.clipboard.writeText(currentUrl);
-      setCopied(true);
+  // const handleCopyLink = async () => {
+  //   try {
+  //     const currentUrl = window.location.href;
+  //     await navigator.clipboard.writeText(currentUrl);
+  //     setCopied(true);
       
-      // Reset the copied state after 3 seconds
-      setTimeout(() => {
-        setCopied(false);
-      }, 3000);
-    } catch (err) {
-      console.error('Failed to copy link:', err);
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = window.location.href;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      setCopied(true);
-      setTimeout(() => {
-        setCopied(false);
-      }, 3000);
-    }
-  };
+  //     // Reset the copied state after 3 seconds
+  //     setTimeout(() => {
+  //       setCopied(false);
+  //     }, 3000);
+  //   } catch (err) {
+  //     console.error('Failed to copy link:', err);
+  //     // Fallback for older browsers
+  //     const textArea = document.createElement('textarea');
+  //     textArea.value = window.location.href;
+  //     document.body.appendChild(textArea);
+  //     textArea.select();
+  //     document.execCommand('copy');
+  //     document.body.removeChild(textArea);
+  //     setCopied(true);
+  //     setTimeout(() => {
+  //       setCopied(false);
+  //     }, 3000);
+  //   }
+  // };
 
   if (loading) return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
@@ -266,7 +266,7 @@ const FileViewPage = () => {
             </h2>
             <div className="flex flex-col sm:flex-row gap-4">
               <button 
-                onClick={handleDownload}
+                // onClick={handleDownload}
                 disabled={!file.isUploaderOnline}
                 className={`flex-1 flex items-center justify-center px-6 py-4 rounded-xl font-semibold text-lg transition-all duration-200 transform hover:scale-105 ${
                   file.isUploaderOnline 
@@ -281,7 +281,7 @@ const FileViewPage = () => {
               </button>
               
               <button
-                onClick={handleCopyLink}
+                // onClick={handleCopyLink}
                 className="flex-1 flex items-center justify-center px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white rounded-xl font-semibold text-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
               >
                 {copied ? (
